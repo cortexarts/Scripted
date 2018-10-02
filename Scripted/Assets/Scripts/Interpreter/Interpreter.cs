@@ -24,7 +24,7 @@ public class Interpreter : MonoBehaviour
     {
         if (script.text.Length > 0)
         {
-
+            // TODO: Parse script
         }
         else
         {
