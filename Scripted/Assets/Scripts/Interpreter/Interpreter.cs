@@ -19,12 +19,24 @@ public class Interpreter : MonoBehaviour
 		
 	}
 
+    public void RunText(Text source)
+    {
+        Run(source.text);
+    }
+
     public void Run(string source)
     {
         if (source.Length > 0)
         {
             Scanner scanner = new Scanner(source);
             List<Token> tokens = scanner.ScanTokens();
+
+            // Temp test
+            foreach (Token token in tokens)
+            {
+                Debug.Log(token.TokenString());
+            }
+
             // TODO: Parse script
         }
         else

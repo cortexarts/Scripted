@@ -1,16 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
-public class Token : MonoBehaviour
+public class Token
 {
     TokenType type;
     string lexeme;
-    Object literal;
+    string literal;
     int line;
 
-    // Constructor
-    public Token(TokenType type, string lexeme, Object literal, int line)
+    public Token(TokenType type, string lexeme, string literal, int line)
     {
         this.type = type;
         this.lexeme = lexeme;
@@ -18,17 +16,7 @@ public class Token : MonoBehaviour
         this.line = line;
     }
 
-    // Use this for initialization
-    void Start () {
-		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		
-	}
-
-    public string toString()
+    public string TokenString()
     {
         return type + " " + lexeme + " " + literal;
     }

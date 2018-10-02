@@ -1,32 +1,36 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 
-public class Scanner : MonoBehaviour
+public class Scanner
 {
     private int start = 0;
     private int current = 0;
     private int line = 1;
     private string source;
     private List<Token> tokens = new List<Token>();
-
-    // Constructor
+    private static Dictionary<string, TokenType> keywords = new Dictionary<string, TokenType>();
+    
     public Scanner(string source)
     {
         this.source = source;
-    }
 
-    // Use this for initialization
-    void Start ()
-    {
-		
-	}
-	
-	// Update is called once per frame
-	void Update ()
-    {
-		
-	}
+        keywords.Add("and", TokenType.AND);
+        keywords.Add("class", TokenType.CLASS);
+        keywords.Add("else", TokenType.ELSE);
+        keywords.Add("false", TokenType.FALSE);
+        keywords.Add("for", TokenType.FOR);
+        keywords.Add("fun", TokenType.FUN);
+        keywords.Add("if", TokenType.IF);
+        keywords.Add("nil", TokenType.NIL);
+        keywords.Add("or", TokenType.OR);
+        keywords.Add("print", TokenType.PRINT);
+        keywords.Add("return", TokenType.RETURN);
+        keywords.Add("super", TokenType.SUPER);
+        keywords.Add("this", TokenType.THIS);
+        keywords.Add("true", TokenType.TRUE);
+        keywords.Add("var", TokenType.VAR);
+        keywords.Add("while", TokenType.WHILE);
+    }
 
     public List<Token> ScanTokens()
     {
@@ -55,10 +59,49 @@ public class Scanner : MonoBehaviour
         return true;
     }
 
+    private bool IsDigit(char c)
+    {
+        return c >= '0' && c <= '9';
+    }
+
+    private bool IsAlpha(char c)
+    {
+        return (c >= 'a' && c <= 'z') ||
+               (c >= 'A' && c <= 'Z') ||
+                c == '_';
+    }
+
+    private bool IsAlphaNumeric(char c)
+    {
+        return IsAlpha(c) || IsDigit(c);
+    }
+
+    private void Number()
+    {
+        while (IsDigit(Peek())) Advance();
+
+        // Look for a fractional part.                            
+        if (Peek() == '.' && IsDigit(PeekNext()))
+        {
+            // Consume the "."                                      
+            Advance();
+
+            while (IsDigit(Peek())) Advance();
+        }
+
+        AddToken(TokenType.NUMBER, source.Substring(start, current));
+    }
+
     private char Peek()
     {
         if (IsAtEnd()) return '\0';
         return source[current];
+    }
+
+    private char PeekNext()
+    {
+        if (current + 1 >= source.Length) return '\0';
+        return source[current + 1];
     }
 
     private void ScanToken()
@@ -92,8 +135,28 @@ public class Scanner : MonoBehaviour
                     AddToken(TokenType.SLASH);
                 }
                 break;
+            case ' ':
+            case '\r':
+            case '\t':
+                // Ignore whitespace.                      
+                break;
+            case '\n':
+                line++;
+                break;
+            case '"': String(); break;
             default:
-                Interpreter.Error(line, "Unexpected character.");
+                if (IsDigit(c))
+                {
+                    Number();
+                }
+                else if (IsAlpha(c))
+                {
+                    Identifier();
+                }
+                else
+                {
+                    Interpreter.Error(line, "Unexpected character.");
+                }
                 break;
         }
     }
@@ -109,9 +172,46 @@ public class Scanner : MonoBehaviour
         AddToken(type, null);
     }
 
-    private void AddToken(TokenType type, Object literal)
+    private void AddToken(TokenType type, string literal)
     {
         string text = source.Substring(start, current);
         tokens.Add(new Token(type, text, literal, line));
+    }
+
+    private void String ()
+    {
+        while (Peek() != '"' && !IsAtEnd())
+        {                   
+            if (Peek() == '\n') line++;                           
+            Advance();
+        }
+
+        // Unterminated string.                                 
+        if (IsAtEnd())
+        {                                        
+            Interpreter.Error(line, "Unterminated string.");              
+            return;                                               
+        }                                                       
+
+        // The closing ".                                       
+        Advance();
+
+        // Trim the surrounding quotes.                         
+        string value = source.Substring(start + 1, current - 1);
+        AddToken(TokenType.STRING, value);                                
+    }
+
+    private void Identifier()
+    {
+        while (IsAlphaNumeric(Peek())) Advance();
+
+        // See if the identifier is a reserved word.   
+        string text = source.Substring(start, current);
+
+        TokenType type = TokenType.NONE;
+        keywords.TryGetValue(text, out type);
+        if (type == TokenType.NONE) type = TokenType.IDENTIFIER;
+
+        AddToken(type);
     }
 }
