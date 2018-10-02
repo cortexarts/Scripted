@@ -5,8 +5,7 @@ using UnityEngine.UI;
 
 public class Interpreter : MonoBehaviour
 {
-    [SerializeField]
-    private Text script;
+    private static bool hadError = false;
 
 	// Use this for initialization
 	void Start ()
@@ -20,10 +19,12 @@ public class Interpreter : MonoBehaviour
 		
 	}
 
-    public void Run()
+    public void Run(string source)
     {
-        if (script.text.Length > 0)
+        if (source.Length > 0)
         {
+            Scanner scanner = new Scanner(source);
+            List<Token> tokens = scanner.ScanTokens();
             // TODO: Parse script
         }
         else
@@ -31,5 +32,16 @@ public class Interpreter : MonoBehaviour
             // TODO: Add pop-up or in-game feedback
             Debug.LogWarning("Script error!");
         }
+    }
+
+    public static void Error(int line, string message)
+    {
+        Report(line, "", message);
+    }
+
+    private static void Report(int line, string where, string message)
+    {
+        Debug.LogWarning("[line " + line + "] Error" + where + ": " + message);
+        hadError = true;
     }
 }
