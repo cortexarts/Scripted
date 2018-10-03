@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
 {
-    private Environment environment = new Environment();
+    public Environment globals = new Environment();
+    private Environment environment = globals;
+    private Dictionary<Expr, int> locals = new Dictionary<Expr, int>();
 
     public void Interpret(List<Stmt> statements)
     {
@@ -60,7 +62,22 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
 
     public object VisitVariableExpr(Expr.Variable expr)
     {
-        return environment.Get(expr.name);
+        return LookUpVariable(expr.name, expr);
+    }
+
+    private object LookUpVariable(Token name, Expr expr)
+    {
+        int distance;
+        locals.TryGetValue(expr, out distance);
+
+        if (distance != null)
+        {
+            return environment.GetAt(distance, name.lexeme);
+        }
+        else
+        {
+            return globals.Get(name);
+        }
     }
 
     private bool IsTruthy(object obj)
@@ -112,6 +129,11 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
         stmt.Accept(this);
     }
 
+    void Resolve(Expr expr, int depth)
+    {
+        locals.put(expr, depth);
+    }
+
     public void ExecuteBlock(List<Stmt> statements, Environment environment)
     {
         Environment previous = this.environment;
@@ -142,6 +164,13 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
         return null;
     }
 
+    public object visitFunctionStmt(Stmt.Function stmt)
+    {
+        BoxFunction function = new BoxFunction(stmt, environment);
+        environment.Define(stmt.name.lexeme, function);
+        return null;
+    }
+
     public object VisitIfStmt(Stmt.If stmt)
     {
         if (IsTruthy(Evaluate(stmt.condition)))
@@ -163,6 +192,14 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
         // Unity
         Debug.Log(Stringify(value));
         return null;
+    }
+
+    public object visitReturnStmt(Stmt.Return stmt)
+    {
+        object value = null;
+        if (stmt.value != null) value = Evaluate(stmt.value);
+
+        throw new BoxReturn(value);
     }
 
     public object VisitVarStmt(Stmt.Var stmt)
@@ -190,7 +227,17 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
     {
         object value = Evaluate(expr.value);
 
-        environment.Assign(expr.name, value);
+        int distance;
+        locals.TryGetValue(expr, out distance);
+        if (distance != null)
+        {
+            environment.AssignAt(distance, expr.name, value);
+        }
+        else
+        {
+            globals.Assign(expr.name, value);
+        }
+
         return value;
     }
 
@@ -240,6 +287,34 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
 
         // Unreachable.                                
         return null;
+    }
+
+    public object VisitCallExpr(Expr.Call expr)
+    {
+        object callee = Evaluate(expr.callee);
+
+        List<object> arguments = new List<object>();
+
+        foreach (Expr argument in expr.arguments)
+        {
+            arguments.Add(Evaluate(argument));
+        }
+
+        if (!(callee == typeof(BoxCallable)))
+        {
+            throw new RuntimeError(expr.paren, "Can only call functions and classes.");
+        }
+
+        BoxCallable function = (BoxCallable)callee;
+
+        if (arguments.Count != function.Arity())
+        {
+            throw new RuntimeError(expr.paren, "Expected " +
+                function.Arity() + " arguments but got " +
+                arguments.Count + ".");
+        }
+
+        return function.Call(this, arguments);
     }
 
     private void CheckNumberOperand(Token oper, object operand)

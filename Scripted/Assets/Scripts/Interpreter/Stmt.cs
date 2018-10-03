@@ -11,6 +11,8 @@ public abstract class Stmt
         T VisitBlockStmt(Block stmt);
         T VisitIfStmt(If stmt);
         T VisitWhileStmt(While stmt);
+        T VisitFunctionStmt(Function stmt);
+        T VisitReturnStmt(Return stmt);
     }
 
     public class Expression : Stmt
@@ -111,5 +113,42 @@ public abstract class Stmt
         public Stmt body;
 
     }
+
+    public class Function : Stmt
+    {
+        public Function(Token name, List<Token> parameters, List<Stmt> body)
+        {
+            this.name = name;
+            this.parameters = parameters;
+            this.body = body;
+        }
+
+        public override T Accept<T>(Visitor<T> visitor)
+        {
+            return visitor.VisitFunctionStmt(this);
+        }
+
+        public Token name;
+        public List<Token> parameters;
+        public List<Stmt> body;
+    }
+
+    public class Return : Stmt
+    {
+        public Return(Token keyword, Expr value)
+        {
+            this.keyword = keyword;
+            this.value = value;
+        }
+
+        public override T Accept<T>(Visitor<T> visitor)
+        {
+            return visitor.VisitReturnStmt(this);
+        }
+
+        public Token keyword;
+        public Expr value;
+    }
+
     public abstract T Accept<T>(Visitor<T> visitor);
 }

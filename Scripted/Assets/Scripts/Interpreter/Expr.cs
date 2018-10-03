@@ -12,6 +12,7 @@ public abstract class Expr
         T VisitUnaryExpr(Unary expr);
         T VisitVariableExpr(Variable expr);
         T VisitAssignExpr(Assign expr);
+        T VisitCallExpr(Call expr);
     }
 
     public class Binary : Expr
@@ -129,6 +130,25 @@ public abstract class Expr
 
         public Token name;
         public Expr value;
+    }
+
+    public class Call : Expr
+    {
+        public Call(Expr callee, Token paren, List<Expr> arguments)
+        {
+            this.callee = callee;
+            this.paren = paren;
+            this.arguments = arguments;
+        }
+
+        public override T Accept<T>(Visitor<T> visitor)
+        {
+            return visitor.VisitCallExpr(this);
+        }
+
+        public Expr callee;
+        public Token paren;
+        public List<Expr> arguments;
     }
 
     public abstract T Accept<T>(Visitor<T> visitor);

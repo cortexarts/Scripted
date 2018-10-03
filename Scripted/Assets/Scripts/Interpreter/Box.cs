@@ -39,6 +39,11 @@ public class Box : MonoBehaviour
 
             if (hadError) return;
 
+            BoxResolver resolver = new BoxResolver(interpreter);
+            resolver.Resolve(statements);
+
+            if (hadError) return;
+
             interpreter.Interpret(statements);
         }
         else
