@@ -10,38 +10,37 @@ public class Parser
     {
         this.tokens = tokens;
     }
+    
+    private Expr Expression()
+    {
+        return Equality();
+    }
 
-    // TODO: Chapter 6
-    //private Expr Expression()
-    //{
-    //    return Equality();
-    //}
+    private Expr Equality()
+    {
+        Expr expr = Comparison();
 
-    //private Expr Equality()
-    //{
-    //    Expr expr = Comparison();
+        while (Match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL))
+        {
+            Token oper = Previous();
+            Expr right = Comparison();
+            expr = new Expr.Binary(expr, oper, right);
+        }
 
-    //    while (Match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL))
-    //    {
-    //        Token operator = Previous();
-    //        Expr right = Comparison();
-    //        expr = new Expr.Binary(expr, operator, right);
-    //    }
+        return expr;
+    }
 
-    //    return expr;
-    //}
+    private bool Match(TokenType types)
+    {
+        foreach (TokenType type in types.GetValues(typeof(TokenType)))
+        {
+            if (Check(type))
+            {
+                Advance();
+                return true;
+            }
+        }
 
-    //private bool Match(TokenType types)
-    //{
-    //    foreach (TokenType type in types.GetValues(typeof(TokenType)))
-    //    {
-    //        if (Check(type))
-    //        {
-    //            Advance();
-    //            return true;
-    //        }
-    //    }
-
-    //    return false;
-    //}
+        return false;
+    }
 }

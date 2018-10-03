@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 public class Token
 {
-    TokenType type;
-    string lexeme;
-    string literal;
-    int line;
+    public TokenType type;
+    public string lexeme;
+    public string literal;
+    public int line;
 
     public Token(TokenType type, string lexeme, string literal, int line)
     {
