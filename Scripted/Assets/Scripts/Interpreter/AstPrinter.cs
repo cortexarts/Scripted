@@ -18,7 +18,17 @@ public class AstPrinter : Expr.Visitor<string>
     {
         return Parenthesize("group", expr.expression);
     }
-    
+
+    public string VisitVariableExpr(Expr.Variable expr)
+    {
+        return Parenthesize("variable", expr);
+    }
+
+    public string VisitAssignExpr(Expr.Assign expr)
+    {
+        return Parenthesize("assign", expr);
+    }
+
     public string VisitLiteralExpr(Expr.Literal expr)
     {
         if (expr.value == null) return "nil";
