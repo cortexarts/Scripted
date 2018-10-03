@@ -89,7 +89,7 @@ public class Scanner
             while (IsDigit(Peek())) Advance();
         }
 
-        AddToken(TokenType.NUMBER, source.Substring(start, current));
+        AddToken(TokenType.NUMBER, source.IndexBasedSubstring(start, current));
     }
 
     private char Peek()
@@ -173,11 +173,11 @@ public class Scanner
 
     private void AddToken(TokenType type, string literal)
     {
-        string text = source.Substring(start, current);
+        string text = source.IndexBasedSubstring(start, current);
         tokens.Add(new Token(type, text, literal, line));
     }
 
-    private void String ()
+    private void String()
     {
         while (Peek() != '"' && !IsAtEnd())
         {                   
@@ -196,7 +196,7 @@ public class Scanner
         Advance();
 
         // Trim the surrounding quotes.                         
-        string value = source.Substring(start + 1, current - 1);
+        string value = source.IndexBasedSubstring(start + 1, current - 1);
         AddToken(TokenType.STRING, value);                                
     }
 
@@ -205,7 +205,7 @@ public class Scanner
         while (IsAlphaNumeric(Peek())) Advance();
 
         // See if the identifier is a reserved word.   
-        string text = source.Substring(start, current);
+        string text = source.IndexBasedSubstring(start, current);
 
         TokenType type = TokenType.NONE;
         keywords.TryGetValue(text, out type);
