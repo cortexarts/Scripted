@@ -70,7 +70,7 @@ public class Box : MonoBehaviour
         }
     }
 
-    static void RuntimeError(RuntimeError error)
+    public static void RuntimeError(RuntimeError error)
     {
         Debug.LogError(error.GetMessage() + "\n[line " + error.token.line + "]");
         hadRuntimeError = true;

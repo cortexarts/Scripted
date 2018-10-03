@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System;
 
-class RuntimeError : SystemException
+public class RuntimeError : SystemException
 {
     public Token token;
 
     public RuntimeError(Token token, string message)
     {
-        Super(message);
+        // TODO: Actual runtime error
+        System.Diagnostics.Debug.WriteLine(message);
         this.token = token;
     }
 }

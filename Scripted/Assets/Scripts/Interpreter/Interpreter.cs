@@ -8,11 +8,11 @@ public class Interpreter
         try
         {
             object value = Evaluate(expression);
-            System.out.println(Stringify(value));
+            System.Diagnostics.Debug.WriteLine(Stringify(value));
         }
         catch (RuntimeError error)
         {
-            Box.runtimeError(error);
+            Box.RuntimeError(error);
         }
     }
 
@@ -23,7 +23,7 @@ public class Interpreter
 
     public object VisitUnaryExpr(Expr.Unary expr)
     {
-        object right = evaluate(expr.right);
+        object right = Evaluate(expr.right);
 
         switch (expr.oper.type) 
         {
@@ -40,7 +40,7 @@ public class Interpreter
     private bool IsTruthy(object obj)
     {
         if (obj == null) return false;
-        if (obj instanceof Boolean) return (bool)obj;
+        if (obj == typeof(bool)) return (bool)obj;
         return true;
     }
 
@@ -58,7 +58,7 @@ public class Interpreter
         if (obj == null) return "nil";
 
         // Hack. Work around Java adding ".0" to integer-valued doubles.
-        if (obj instanceof Double)
+        if (obj == typeof(double))
         {
             string text = obj.ToString();
             if (text.EndsWith(".0"))
@@ -104,12 +104,12 @@ public class Interpreter
                 CheckNumberOperands(expr.oper, left, right);
                 return (double)left - (double)right;
             case TokenType.PLUS:
-                if (left instanceof Double && right instanceof Double)
+                if (left == typeof(double) && right == typeof(double))
                 {
                     return (double)left + (double)right;
                 }
 
-                if (left instanceof String && right instanceof String)
+                if (left == typeof(string) && right == typeof(string))
                 {
                     return (string)left + (string)right;
                 }
@@ -131,13 +131,13 @@ public class Interpreter
 
     private void CheckNumberOperand(Token oper, object operand)
     {
-        if (operand instanceof Double) return;
+        if (operand == typeof(double)) return;
         throw new RuntimeError(oper, "Operand must be a number.");
     }
 
     private void CheckNumberOperands(Token oper, object left, object right)
     {
-        if (left instanceof Double && right instanceof Double) return;
+        if (left == typeof(double) && right == typeof(double)) return;
 
         throw new RuntimeError(oper, "Operands must be numbers.");
     }

@@ -57,6 +57,6 @@ public class AstPrinter : Expr.Visitor<string>
             new Expr.Grouping(
                 new Expr.Literal(45.67)));
 
-        System.out.println(new AstPrinter().print(expression));
+        System.Diagnostics.Debug.WriteLine(new AstPrinter().Print(expression));
     }
 }
