@@ -9,23 +9,23 @@ public class AstPrinter : Expr.Visitor<string>
         return expr.Accept(this);
     }
     
-    public override string VisitBinaryExpr(Expr.Binary expr)
+    public string VisitBinaryExpr(Expr.Binary expr)
     {
         return Parenthesize(expr.oper.lexeme, expr.left, expr.right);
     }
     
-    public override string VisitGroupingExpr(Expr.Grouping expr)
+    public string VisitGroupingExpr(Expr.Grouping expr)
     {
         return Parenthesize("group", expr.expression);
     }
     
-    public override string VisitLiteralExpr(Expr.Literal expr)
+    public string VisitLiteralExpr(Expr.Literal expr)
     {
         if (expr.value == null) return "nil";
         return expr.value.ToString();
     }
     
-    public override string VisitUnaryExpr(Expr.Unary expr)
+    public string VisitUnaryExpr(Expr.Unary expr)
     {
         return Parenthesize(expr.oper.lexeme, expr.right);
     }

@@ -34,11 +34,12 @@ public class Box : MonoBehaviour
             Scanner scanner = new Scanner(source);
             List<Token> tokens = scanner.ScanTokens();
             Parser parser = new Parser(tokens);
-            Expr expression = parser.Parse();
+
+            List<Stmt> statements = parser.Parse();
 
             if (hadError) return;
 
-            interpreter.interpret(expression);
+            interpreter.Interpret(statements);
         }
         else
         {
@@ -72,7 +73,8 @@ public class Box : MonoBehaviour
 
     public static void RuntimeError(RuntimeError error)
     {
-        Debug.LogError(error.GetMessage() + "\n[line " + error.token.line + "]");
+        // TODO: Fix error
+        //Debug.LogError(error.GetMessage() + "\n[line " + error.token.line + "]");
         hadRuntimeError = true;
     }
 }

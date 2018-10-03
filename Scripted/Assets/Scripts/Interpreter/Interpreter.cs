@@ -1,14 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 
-public class Interpreter
+public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
 {
-    void Interpret(Expr expression)
+    public void Interpret(List<Stmt> statements)
     {
         try
         {
-            object value = Evaluate(expression);
-            System.Diagnostics.Debug.WriteLine(Stringify(value));
+            foreach (Stmt statement in statements)
+            {
+                Execute(statement);
+            }
         }
         catch (RuntimeError error)
         {
@@ -16,7 +18,7 @@ public class Interpreter
         }
     }
 
-    public override object VisitLiteralExpr(Expr.Literal expr)
+    public object VisitLiteralExpr(Expr.Literal expr)
     {
         return expr.value;
     }
@@ -71,7 +73,7 @@ public class Interpreter
         return obj.ToString();
     }
 
-    public override object VisitGroupingExpr(Expr.Grouping expr)
+    public object VisitGroupingExpr(Expr.Grouping expr)
     {
         return Evaluate(expr.expression);
     }
@@ -79,6 +81,24 @@ public class Interpreter
     private object Evaluate(Expr expr)
     {
         return expr.Accept(this);
+    }
+
+    private void Execute(Stmt stmt)
+    {
+        stmt.Accept(this);
+    }
+
+    public object VisitExpressionStmt(Stmt.Expression stmt)
+    {
+        Evaluate(stmt.expression);
+        return null;
+    }
+
+    public object VisitPrintStmt(Stmt.Print stmt)
+    {
+        object value = Evaluate(stmt.expression);
+        System.Diagnostics.Debug.WriteLine(Stringify(value));
+        return null;
     }
 
     public object VisitBinaryExpr(Expr.Binary expr)
