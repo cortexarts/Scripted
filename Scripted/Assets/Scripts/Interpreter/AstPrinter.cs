@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using UnityEngine;
 
 public class AstPrinter : Expr.Visitor<string>
 {
@@ -73,5 +74,7 @@ public class AstPrinter : Expr.Visitor<string>
                 new Expr.Literal(45.67)));
 
         System.Diagnostics.Debug.WriteLine(new AstPrinter().Print(expression));
+        // Unity
+        Debug.Log(new AstPrinter().Print(expression));
     }
 }

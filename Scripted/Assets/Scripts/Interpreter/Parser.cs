@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System;
+using UnityEngine;
 
 public class Parser
 {
@@ -43,6 +44,8 @@ public class Parser
             Synchronize();
 
             System.Diagnostics.Debug.WriteLine(error.Message);
+            // Unity
+            Debug.Log(error.Message);
             return null;
         }
     }

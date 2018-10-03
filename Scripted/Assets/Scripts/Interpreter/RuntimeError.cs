@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System;
+using UnityEngine;
 
 public class RuntimeError : SystemException
 {
@@ -10,6 +11,8 @@ public class RuntimeError : SystemException
     {
         // TODO: Actual runtime error
         System.Diagnostics.Debug.WriteLine(message);
+        // Unity
+        Debug.Log(message);
         this.token = token;
     }
 }

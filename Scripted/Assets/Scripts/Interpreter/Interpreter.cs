@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
 {
@@ -159,6 +160,8 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
     {
         object value = Evaluate(stmt.expression);
         System.Diagnostics.Debug.WriteLine(Stringify(value));
+        // Unity
+        Debug.Log(Stringify(value));
         return null;
     }
 
