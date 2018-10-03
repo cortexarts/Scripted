@@ -124,10 +124,9 @@ public class Scanner
             case '<': AddToken(Match('=') ? TokenType.LESS_EQUAL : TokenType.LESS); break;
             case '>': AddToken(Match('=') ? TokenType.GREATER_EQUAL : TokenType.GREATER); break;
             case '/':
-                // TODO: chapter 4.6
                 if (Match('/'))
                 {
-                    // A comment goes until the end of the line.                
+                    // A comment goes until the end of the line
                     while (Peek() != '\n' && !IsAtEnd()) Advance();
                 }
                 else
