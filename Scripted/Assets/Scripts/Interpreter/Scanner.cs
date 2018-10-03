@@ -155,7 +155,7 @@ public class Scanner
                 }
                 else
                 {
-                    Interpreter.Error(line, "Unexpected character.");
+                    Box.Error(line, "Unexpected character.");
                 }
                 break;
         }
@@ -189,7 +189,7 @@ public class Scanner
         // Unterminated string.                                 
         if (IsAtEnd())
         {                                        
-            Interpreter.Error(line, "Unterminated string.");              
+            Box.Error(line, "Unterminated string.");              
             return;                                               
         }                                                       
 

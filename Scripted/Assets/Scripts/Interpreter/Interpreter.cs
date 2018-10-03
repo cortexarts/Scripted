@@ -1,59 +1,144 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
 
-public class Interpreter : MonoBehaviour
+public class Interpreter
 {
-    private static bool hadError = false;
-
-	// Use this for initialization
-	void Start ()
+    void Interpret(Expr expression)
     {
-		
-	}
-	
-	// Update is called once per frame
-	void Update ()
-    {
-		
-	}
-
-    public void RunText(Text source)
-    {
-        Run(source.text);
+        try
+        {
+            object value = Evaluate(expression);
+            System.out.println(Stringify(value));
+        }
+        catch (RuntimeError error)
+        {
+            Box.runtimeError(error);
+        }
     }
 
-    public void Run(string source)
+    public override object VisitLiteralExpr(Expr.Literal expr)
     {
-        if (source.Length > 0)
-        {
-            Scanner scanner = new Scanner(source);
-            List<Token> tokens = scanner.ScanTokens();
+        return expr.value;
+    }
 
-            // Temp test
-            foreach (Token token in tokens)
+    public object VisitUnaryExpr(Expr.Unary expr)
+    {
+        object right = evaluate(expr.right);
+
+        switch (expr.oper.type) 
+        {
+            case TokenType.BANG:
+                return !IsTruthy(right);
+            case TokenType.MINUS:
+                return -(double)right;
+        }
+
+        // Unreachable.                              
+        return null;
+    }
+
+    private bool IsTruthy(object obj)
+    {
+        if (obj == null) return false;
+        if (obj instanceof Boolean) return (bool)obj;
+        return true;
+    }
+
+    private bool IsEqual(object a, object b)
+    {
+        // nil is only equal to nil.               
+        if (a == null && b == null) return true;
+        if (a == null) return false;
+
+        return a.Equals(b);
+    }
+
+    private string Stringify(object obj)
+    {
+        if (obj == null) return "nil";
+
+        // Hack. Work around Java adding ".0" to integer-valued doubles.
+        if (obj instanceof Double)
+        {
+            string text = obj.ToString();
+            if (text.EndsWith(".0"))
             {
-                Debug.Log(token.TokenString());
+                text = text.Substring(0, text.Length - 2);
             }
-
-            // TODO: Parse script
+            return text;
         }
-        else
+
+        return obj.ToString();
+    }
+
+    public override object VisitGroupingExpr(Expr.Grouping expr)
+    {
+        return Evaluate(expr.expression);
+    }
+
+    private object Evaluate(Expr expr)
+    {
+        return expr.Accept(this);
+    }
+
+    public object VisitBinaryExpr(Expr.Binary expr)
+    {
+        object left = Evaluate(expr.left);
+        object right = Evaluate(expr.right);
+
+        switch (expr.oper.type)
         {
-            // TODO: Add pop-up or in-game feedback
-            Debug.LogWarning("Script error!");
+            case TokenType.GREATER:
+                CheckNumberOperands(expr.oper, left, right);
+                return (double)left > (double)right;
+            case TokenType.GREATER_EQUAL:
+                CheckNumberOperands(expr.oper, left, right);
+                return (double)left >= (double)right;
+            case TokenType.LESS:
+                CheckNumberOperands(expr.oper, left, right);
+                return (double)left < (double)right;
+            case TokenType.LESS_EQUAL:
+                CheckNumberOperands(expr.oper, left, right);
+                return (double)left <= (double)right;
+            case TokenType.MINUS:
+                CheckNumberOperands(expr.oper, left, right);
+                return (double)left - (double)right;
+            case TokenType.PLUS:
+                if (left instanceof Double && right instanceof Double)
+                {
+                    return (double)left + (double)right;
+                }
+
+                if (left instanceof String && right instanceof String)
+                {
+                    return (string)left + (string)right;
+                }
+
+                throw new RuntimeError(expr.oper, "Operands must be two numbers or two strings.");
+            case TokenType.SLASH:
+                CheckNumberOperands(expr.oper, left, right);
+                return (double)left / (double)right;       
+            case TokenType.STAR:
+                CheckNumberOperands(expr.oper, left, right);
+                return (double)left * (double)right;
+            case TokenType.BANG_EQUAL: return !IsEqual(left, right);
+            case TokenType.EQUAL_EQUAL: return IsEqual(left, right);
         }
+
+        // Unreachable.                                
+        return null;
     }
 
-    public static void Error(int line, string message)
+    private void CheckNumberOperand(Token oper, object operand)
     {
-        Report(line, "", message);
+        if (operand instanceof Double) return;
+        throw new RuntimeError(oper, "Operand must be a number.");
     }
 
-    private static void Report(int line, string where, string message)
+    private void CheckNumberOperands(Token oper, object left, object right)
     {
-        Debug.LogWarning("[line " + line + "] Error" + where + ": " + message);
-        hadError = true;
+        if (left instanceof Double && right instanceof Double) return;
+
+        throw new RuntimeError(oper, "Operands must be numbers.");
     }
 }

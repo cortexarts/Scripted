@@ -4,28 +4,28 @@ using System.Text;
 
 public class AstPrinter : Expr.Visitor<string>
 {
-    string Print(Expr expr)
+    public string Print(Expr expr)
     {
         return expr.Accept(this);
     }
     
-    public string VisitBinaryExpr(Expr.Binary expr)
+    public override string VisitBinaryExpr(Expr.Binary expr)
     {
         return Parenthesize(expr.oper.lexeme, expr.left, expr.right);
     }
     
-    public string VisitGroupingExpr(Expr.Grouping expr)
+    public override string VisitGroupingExpr(Expr.Grouping expr)
     {
         return Parenthesize("group", expr.expression);
     }
     
-    public string VisitLiteralExpr(Expr.Literal expr)
+    public override string VisitLiteralExpr(Expr.Literal expr)
     {
         if (expr.value == null) return "nil";
         return expr.value.ToString();
     }
     
-    public string visitUnaryExpr(Expr.Unary expr)
+    public override string VisitUnaryExpr(Expr.Unary expr)
     {
         return Parenthesize(expr.oper.lexeme, expr.right);
     }

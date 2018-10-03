@@ -3,6 +3,17 @@ using System.Collections.Generic;
 
 public abstract class Expr
 {
+    public abstract class Visitor<T>
+    {
+        public abstract T VisitNumber(int n);
+        public abstract T VisitSum(T left, T right);
+    }
+
+    public <T> T Accept(Visitor<T> v)
+    {
+        return v.VisitSum(left.Accept(v), right.Accept(v));
+    }
+
     public class Binary : Expr
     {
         public Binary(Expr left, Token oper, Expr right)
