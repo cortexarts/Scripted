@@ -9,6 +9,8 @@ public abstract class Stmt
         T VisitPrintStmt(Print stmt);
         T VisitVarStmt(Var stmt);
         T VisitBlockStmt(Block stmt);
+        T VisitIfStmt(If stmt);
+        T VisitWhileStmt(While stmt);
     }
 
     public class Expression : Stmt
@@ -73,5 +75,41 @@ public abstract class Stmt
         public List<Stmt> statements;
     }
 
+    public class If : Stmt
+    {
+        public If(Expr condition, Stmt thenBranch, Stmt elseBranch)
+        {
+            this.condition = condition;
+            this.thenBranch = thenBranch;
+            this.elseBranch = elseBranch;
+        }
+
+        public override T Accept<T>(Visitor<T> visitor)
+        {
+            return visitor.VisitIfStmt(this);
+        }
+
+        public Expr condition;
+        public Stmt thenBranch;
+        public Stmt elseBranch;
+    }
+
+    public class While : Stmt
+    {
+        public While(Expr condition, Stmt body)
+        {
+            this.condition = condition;
+            this.body = body;
+        }
+
+        public override T Accept<T>(Visitor<T> visitor)
+        {
+            return visitor.VisitWhileStmt(this);
+        }
+
+        public Expr condition;
+        public Stmt body;
+
+    }
     public abstract T Accept<T>(Visitor<T> visitor);
 }

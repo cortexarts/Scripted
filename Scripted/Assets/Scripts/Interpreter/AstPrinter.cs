@@ -29,6 +29,11 @@ public class AstPrinter : Expr.Visitor<string>
         return Parenthesize("assign", expr);
     }
 
+    public string VisitLogicalExpr(Expr.Logical expr)
+    {
+        return Parenthesize("logical", expr);
+    }
+
     public string VisitLiteralExpr(Expr.Literal expr)
     {
         if (expr.value == null) return "nil";

@@ -25,6 +25,22 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
         return expr.value;
     }
 
+    public object VisitLogicalExpr(Expr.Logical expr)
+    {
+        object left = Evaluate(expr.left);
+
+        if (expr.oper.type == TokenType.OR)
+        {
+            if (IsTruthy(left)) return left;
+        }
+        else
+        {
+            if (!IsTruthy(left)) return left;
+        }
+
+        return Evaluate(expr.right);
+    }
+
     public object VisitUnaryExpr(Expr.Unary expr)
     {
         object right = Evaluate(expr.right);
@@ -125,6 +141,20 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
         return null;
     }
 
+    public object VisitIfStmt(Stmt.If stmt)
+    {
+        if (IsTruthy(Evaluate(stmt.condition)))
+        {
+            Execute(stmt.thenBranch);
+        }
+        else if (stmt.elseBranch != null)
+        {
+            Execute(stmt.elseBranch);
+        }
+
+        return null;
+    }
+
     public object VisitPrintStmt(Stmt.Print stmt)
     {
         object value = Evaluate(stmt.expression);
@@ -141,6 +171,15 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
         }
 
         environment.Define(stmt.name.lexeme, value);
+        return null;
+    }
+
+    public object VisitWhileStmt(Stmt.While stmt)
+    {
+        while (IsTruthy(Evaluate(stmt.condition)))
+        {
+            Execute(stmt.body);
+        }
         return null;
     }
 
