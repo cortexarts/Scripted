@@ -129,9 +129,9 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
         stmt.Accept(this);
     }
 
-    void Resolve(Expr expr, int depth)
+    public void Resolve(Expr expr, int depth)
     {
-        locals.put(expr, depth);
+        locals.Add(expr, depth);
     }
 
     public void ExecuteBlock(List<Stmt> statements, Environment environment)

@@ -221,6 +221,6 @@ public class BoxResolver : Expr.Visitor<object>, Stmt.Visitor<object>
             }
         }
 
-        // Not found. Assume it is global.                   
+        // Not found. Assume it is global.
     }
 }

@@ -56,7 +56,7 @@ public class Parser
         if (Match(TokenType.FOR)) return ForStatement();
         if (Match(TokenType.IF)) return IfStatement();
         if (Match(TokenType.PRINT)) return PrintStatement();
-        if (match(RETURN)) return ReturnStatement();
+        if (Match(TokenType.RETURN)) return ReturnStatement();
         if (Match(TokenType.WHILE)) return WhileStatement();
         if (Match(TokenType.LEFT_BRACE)) return new Stmt.Block(Block());
 
